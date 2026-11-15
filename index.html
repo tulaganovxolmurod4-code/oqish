@@ -2,8 +2,12 @@
 <html lang="uz">
 <head>
 <meta charset="utf-8">
+<script>if ((location.protocol === 'file:' || location.protocol === 'content:') && navigator.onLine) location.replace('https://tulaganovxolmurod4-code.github.io/oqish/');</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ingliz tilida o’qish mashqi</title>
+<meta name="description" content="Inglizcha matnni o’qing: to’g’ri so’z yashil, xato so’z qizil bo’lib, to’g’ri talaffuzini aytib beradi.">
+<meta property="og:title" content="Ingliz tilida o’qish mashqi">
+<meta property="og:description" content="Inglizcha matnni o’qing: to’g’ri so’z yashil, xato so’z qizil bo’lib, to’g’ri talaffuzini aytib beradi.">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--text:#111;--muted:#667;--ok:#1a9a3c;--okbg:#dff5e5;--err:#d3202a;--errbg:#fde3e4;--btn:#2f5bea;--bd:#d9dde3;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -30,14 +34,14 @@ button:disabled{opacity:.45}
 <body>
 <h1>🎤 Ingliz tilida o’qish mashqi</h1>
 <textarea id="src" placeholder="O’z inglizcha matningizni shu yerga qo’ying (paste)..."></textarea>
+<div class="row"><button id="kb">⌨️ Boshlash (klaviatura 🎤 bilan, hamma joyda ishlaydi)</button></div>
 <div class="row">
-  <button id="start">▶ Boshlash</button>
+  <button id="start" class="sec">▶ Saytning mikrofoni (faqat Chrome)</button>
   <button id="skip" class="sec" disabled>Keyingi so’z ⏭</button>
   <button id="stop" class="sec" disabled>■ To’xtatish</button>
 </div>
-<div class="row"><button id="kb" class="sec">⌨️ Klaviatura mikrofoni rejimi (ishonchliroq)</button></div>
 <textarea id="dict" style="display:none;min-height:90px" placeholder="Shu yerga bosing va klaviaturadagi 🎤 tugmasi bilan matnni o’qing..."></textarea>
-<div id="status">Matnni qo’ying va “Boshlash” tugmasini bosing. Chrome brauzeridan foydalaning.</div>
+<div id="status">Matnni qo’ying, so’ng ko’k tugmani bosing. Chiqadigan maydonda klaviaturadagi 🎤 tugmasi bilan o’qing.</div>
 <div id="reader"></div>
 
 <script>
@@ -115,7 +119,7 @@ function init() {
 function resetBtns() { $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true; }
 
 $('start').onclick = () => {
-  if (!SR) { setStatus('Bu brauzer ovozni tanimaydi. Iltimos, Chrome’dan foydalaning.'); return; }
+  if (!SR) { setStatus('Bu brauzerda saytning mikrofoni ishlamaydi. Yuqoridagi ko’k tugma (klaviatura rejimi) dan foydalaning.'); return; }
   if (!$('src').value.trim()) { setStatus('Avval matn kiriting.'); return; }
   if (!rec) init();
   build(); running = true; speaking = false;

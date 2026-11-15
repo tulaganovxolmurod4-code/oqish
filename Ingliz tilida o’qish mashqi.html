@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ingliz tilida o’qish mashqi</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#111;--muted:#667;--ok:#1a9a3c;--okbg:#dff5e5;--err:#d3202a;--errbg:#fde3e4;--btn:#2f5bea;--bd:#d9dde3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--card:#1f2228;--text:#f1f2f4;--muted:#9aa1ad;--ok:#4fd273;--okbg:#17361f;--err:#ff6b72;--errbg:#3d1a1c;--btn:#5b82ff;--bd:#343842}}
+:root[data-theme="dark"]{--bg:#15171b;--card:#1f2228;--text:#f1f2f4;--muted:#9aa1ad;--ok:#4fd273;--okbg:#17361f;--err:#ff6b72;--errbg:#3d1a1c;--btn:#5b82ff;--bd:#343842}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:760px;margin:0 auto}
+h1{font-size:1.3rem;margin:4px 0 12px}
+textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--text);font-size:1rem;font-family:inherit;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+button{border:0;border-radius:10px;padding:12px 16px;font-size:1rem;font-weight:600;background:var(--btn);color:#fff;cursor:pointer}
+button.sec{background:var(--card);color:var(--text);border:1px solid var(--bd)}
+button:disabled{opacity:.45}
+#status{padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--bd);color:var(--muted);margin-bottom:12px;min-height:44px}
+#reader{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;font-size:1.25rem;line-height:2;display:none}
+.w{display:inline-block;padding:0 5px;margin:0 1px;border-radius:6px;color:var(--text);transition:background .2s,color .2s}
+.w.ok{color:var(--ok);background:var(--okbg)}
+.w.err{color:var(--err);background:var(--errbg);font-weight:700}
+.w.skip{color:var(--muted);text-decoration:line-through}
+.w.cur{outline:2px solid var(--btn)}
+</style>
+</head>
+<body>
+<h1>🎤 Ingliz tilida o’qish mashqi</h1>
+<textarea id="src" placeholder="O’z inglizcha matningizni shu yerga qo’ying (paste)..."></textarea>
+<div class="row">
+  <button id="start">▶ Boshlash</button>
+  <button id="skip" class="sec" disabled>Keyingi so’z ⏭</button>
+  <button id="stop" class="sec" disabled>■ To’xtatish</button>
+</div>
+<div id="status">Matnni qo’ying va “Boshlash” tugmasini bosing. Chrome brauzeridan foydalaning.</div>
+<div id="reader"></div>
+
+<script>
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const $ = id => document.getElementById(id);
+const statusEl = $('status'), reader = $('reader');
+const norm = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+const NUMS = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split(' ');
+let tokens = [], spans = [], idx = 0, running = false, speaking = false, rec = null, counted = {};
+
+function same(heard, exp) {
+  if (heard === exp) return true;
+  const h = NUMS.indexOf(heard), e = NUMS.indexOf(exp);
+  return (h >= 0 && String(h) === exp) || (e >= 0 && String(e) === heard);
+}
+function setStatus(t) { statusEl.textContent = t; }
+function mark() {
+  spans.forEach(s => s.classList.remove('cur'));
+  if (spans[idx]) { spans[idx].classList.add('cur'); spans[idx].scrollIntoView({block: 'center', behavior: 'smooth'}); }
+}
+function build() {
+  const text = $('src').value.replace(/[\u2013\u2014-]/g, ' ');
+  tokens = text.split(/\s+/).filter(w => norm(w));
+  reader.innerHTML = '';
+  spans = tokens.map(w => { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; reader.appendChild(s); reader.appendChild(document.createTextNode(' ')); return s; });
+  reader.style.display = 'block';
+  idx = 0; mark();
+}
+function listen() {
+  if (!running || speaking) return;
+  counted = {};
+  try { rec.start(); setStatus('Eshityapman... “' + tokens[idx] + '” so’zidan boshlab o’qing.'); } catch (e) {}
+}
+function process(word) {
+  if (!running || speaking || idx >= tokens.length) return;
+  const w = norm(word); if (!w) return;
+  if (same(w, norm(tokens[idx]))) {
+    spans[idx].className = 'w ok'; idx++; mark();
+    if (idx >= tokens.length) finish();
+  } else {
+    wrong(word);
+  }
+}
+function wrong(heard) {
+  spans[idx].classList.remove('ok'); spans[idx].classList.add('err');
+  speaking = true; try { rec.stop(); } catch (e) {}
+  const target = tokens[idx].replace(/[^\p{L}\p{N}’'-]/gu, '');
+  setStatus('❌ Xato: siz “' + heard + '” dedingiz. To’g’ri so’z: “' + target + '”. Tinglang...');
+  speechSynthesis.cancel();
+  const say = rate => { const u = new SpeechSynthesisUtterance(target); u.lang = 'en-US'; u.rate = rate; return u; };
+  const u1 = say(0.9), u2 = say(0.5);
+  u2.onend = u2.onerror = () => { speaking = false; setStatus('Endi “' + target + '” so’zini o’zingiz ayting.'); setTimeout(listen, 300); };
+  speechSynthesis.speak(u1); speechSynthesis.speak(u2);
+}
+function finish() {
+  running = false; try { rec.stop(); } catch (e) {}
+  const bad = spans.filter(s => s.classList.contains('skip')).length;
+  setStatus('🎉 Tabriklayman! Matn tugadi.' + (bad ? ' O’tkazib yuborilgan so’zlar: ' + bad : ''));
+  $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true;
+}
+function init() {
+  rec = new SR(); rec.lang = 'en-US'; rec.continuous = true; rec.interimResults = true;
+  rec.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const r = e.results[i], words = r[0].transcript.trim().split(/\s+/);
+      const limit = r.isFinal ? words.length : words.length - 1;
+      for (let j = counted[i] || 0; j < limit; j++) { if (!running || speaking) return; process(words[j]); }
+      if (!speaking) counted[i] = Math.max(counted[i] || 0, limit);
+    }
+  };
+  rec.onend = () => { if (running && !speaking) setTimeout(listen, 200); };
+  rec.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { running = false; setStatus('Mikrofonga ruxsat berilmadi. Brauzer sozlamalaridan ruxsat bering.'); resetBtns(); }
+  };
+}
+function resetBtns() { $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true; }
+
+$('start').onclick = () => {
+  if (!SR) { setStatus('Bu brauzer ovozni tanimaydi. Iltimos, Chrome’dan foydalaning.'); return; }
+  if (!$('src').value.trim()) { setStatus('Avval matn kiriting.'); return; }
+  if (!rec) init();
+  build(); running = true; speaking = false;
+  $('start').disabled = true; $('skip').disabled = false; $('stop').disabled = false;
+  listen();
+};
+$('stop').onclick = () => { running = false; speechSynthesis.cancel(); try { rec.stop(); } catch (e) {} setStatus('To’xtatildi.'); resetBtns(); };
+$('skip').onclick = () => {
+  if (!running || idx >= tokens.length) return;
+  speechSynthesis.cancel(); speaking = false;
+  spans[idx].className = 'w skip'; idx++; mark();
+  if (idx >= tokens.length) finish(); else { try { rec.stop(); } catch (e) {} }
+};
+if (window.self !== window.top) setStatus('⚠️ Mikrofon ishlashi uchun bu sahifani Chrome brauzerida alohida oching (havolani nusxalab, yangi oynada oching).');
+</script>
+</body>
+</html>

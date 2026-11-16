@@ -9,55 +9,152 @@
 <meta property="og:title" content="Ingliz tilida o’qish mashqi">
 <meta property="og:description" content="Inglizcha matnni o’qing: to’g’ri so’z yashil, xato so’z qizil bo’lib, to’g’ri talaffuzini aytib beradi.">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--text:#111;--muted:#667;--ok:#1a9a3c;--okbg:#dff5e5;--err:#d3202a;--errbg:#fde3e4;--btn:#2f5bea;--bd:#d9dde3;
+:root{--bg:#f3f1ff;--card:rgba(255,255,255,.74);--in:rgba(255,255,255,.85);--text:#1a1b2e;--muted:#666b8f;--ok:#0f8a43;--okbg:#d5f8e2;--err:#d11f2f;--errbg:#ffdfe2;--a:#6a4cff;--b:#00b8f0;--c:#ff4fa3;--bd:rgba(106,76,255,.2);--sh:0 20px 50px rgba(80,60,200,.2);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--card:#1f2228;--text:#f1f2f4;--muted:#9aa1ad;--ok:#4fd273;--okbg:#17361f;--err:#ff6b72;--errbg:#3d1a1c;--btn:#5b82ff;--bd:#343842}}
-:root[data-theme="dark"]{--bg:#15171b;--card:#1f2228;--text:#f1f2f4;--muted:#9aa1ad;--ok:#4fd273;--okbg:#17361f;--err:#ff6b72;--errbg:#3d1a1c;--btn:#5b82ff;--bd:#343842}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080a1a;--card:rgba(24,27,52,.68);--in:rgba(255,255,255,.06);--text:#f4f5ff;--muted:#a7abd0;--ok:#4ff0a0;--okbg:rgba(79,240,160,.16);--err:#ff6b7a;--errbg:rgba(255,107,122,.18);--a:#8a6bff;--b:#19d3ff;--c:#ff5fb0;--bd:rgba(255,255,255,.12);--sh:0 20px 60px rgba(0,0,0,.55)}}
+:root[data-theme="dark"]{--bg:#080a1a;--card:rgba(24,27,52,.68);--in:rgba(255,255,255,.06);--text:#f4f5ff;--muted:#a7abd0;--ok:#4ff0a0;--okbg:rgba(79,240,160,.16);--err:#ff6b7a;--errbg:rgba(255,107,122,.18);--a:#8a6bff;--b:#19d3ff;--c:#ff5fb0;--bd:rgba(255,255,255,.12);--sh:0 20px 60px rgba(0,0,0,.55)}
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:760px;margin:0 auto}
-h1{font-size:1.3rem;margin:4px 0 12px}
-textarea{width:100%;min-height:150px;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--text);font-size:1rem;font-family:inherit;resize:vertical}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-button{border:0;border-radius:10px;padding:12px 16px;font-size:1rem;font-weight:600;background:var(--btn);color:#fff;cursor:pointer}
-button.sec{background:var(--card);color:var(--text);border:1px solid var(--bd)}
-button:disabled{opacity:.45}
-#status{padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--bd);color:var(--muted);margin-bottom:12px;min-height:44px}
-#reader{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;font-size:1.25rem;line-height:2;display:none}
-.w{display:inline-block;padding:0 5px;margin:0 1px;border-radius:6px;color:var(--text);transition:background .2s,color .2s}
-.w.ok{color:var(--ok);background:var(--okbg)}
-.w.err{color:var(--err);background:var(--errbg);font-weight:700}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;min-height:100%;overflow-x:hidden}
+.blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;z-index:-1;animation:drift 12s ease-in-out infinite alternate}
+.b1{width:300px;height:300px;background:var(--a);top:-80px;left:-80px}
+.b2{width:260px;height:260px;background:var(--b);top:30%;right:-100px;animation-delay:-4s}
+.b3{width:280px;height:280px;background:var(--c);bottom:-90px;left:15%;animation-delay:-8s}
+main{max-width:720px;margin:0 auto}
+.glass{background:var(--card);border:1px solid var(--bd);border-radius:26px;box-shadow:var(--sh);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+.hero{display:flex;align-items:center;gap:16px;padding:20px}
+.orb{position:relative;flex:none;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-size:2rem;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 0 30px rgba(0,184,240,.55);animation:float 3s ease-in-out infinite}
+.orb::before,.orb::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--b);opacity:0}
+.live .orb::before{animation:ring 1.6s infinite}
+.live .orb::after{animation:ring 1.6s .8s infinite}
+.hero h1{margin:0 0 4px;font-size:1.45rem;line-height:1.15;background:linear-gradient(90deg,var(--a),var(--b),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0;color:var(--muted);font-size:.92rem}
+.steps{display:flex;gap:8px;list-style:none;padding:0;margin:14px 0}
+.steps li{flex:1;padding:9px 6px;border-radius:999px;font-size:.78rem;text-align:center;color:var(--muted);background:var(--card);border:1px solid var(--bd)}
+.steps b{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--c));color:#fff;margin-right:4px}
+.card{padding:16px}
+textarea{width:100%;min-height:140px;padding:14px;border:2px solid var(--bd);border-radius:18px;background:var(--in);color:var(--text);font-size:1rem;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s}
+textarea:focus{border-color:var(--a);box-shadow:0 0 0 4px rgba(138,107,255,.22)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 10px}
+button{border:0;border-radius:16px;padding:14px 16px;font-size:1rem;font-weight:800;color:#fff;cursor:pointer;transition:transform .15s}
+button:active{transform:scale(.96)}
+button.go{flex:1 1 100%;font-size:1.08rem;padding:16px;background:linear-gradient(110deg,var(--a),var(--c),var(--b),var(--a));background-size:300% 100%;animation:shine 6s linear infinite;box-shadow:0 10px 28px rgba(106,76,255,.45)}
+button.sec{flex:1;background:var(--in);color:var(--text);border:1px solid var(--bd)}
+button:disabled{opacity:.4;animation:none;box-shadow:none}
+.legend{display:flex;gap:14px;font-size:.82rem;color:var(--muted);margin:0 0 10px}
+.legend .ok{color:var(--ok)}.legend .err{color:var(--err)}
+#status{padding:13px 14px;border-radius:16px;background:var(--in);border:1px solid var(--bd);line-height:1.4;min-height:48px}
+#status::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--a);margin-right:9px}
+.live #status::before{background:var(--ok);animation:blink 1s infinite}
+.bad #status::before{background:var(--err)}
+#prog{display:none;margin-top:14px;padding:12px 16px}
+.pt{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);font-weight:700}
+.bar{height:10px;border-radius:99px;background:var(--in);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--a),var(--b),var(--c));transition:width .3s}
+#reader{flex:1;min-width:0;padding:18px;font-size:1.35rem;line-height:2.2}
+#reader:empty::before{content:"Matningiz shu yerda chiqadi ✨";font-size:1rem;color:var(--muted)}
+.stage{display:flex;gap:12px;align-items:flex-start;margin-top:14px}
+.robotbox{flex:none;width:96px;position:sticky;top:12px;text-align:center}
+#bubble{min-height:30px;margin-bottom:6px;padding:5px 6px;border-radius:14px;background:var(--card);border:1px solid var(--bd);font-size:.74rem;font-weight:800;word-break:break-word}
+.scene{perspective:420px;height:160px}
+#robot{position:relative;width:64px;height:150px;margin:0 auto;transform-style:preserve-3d;animation:hover 3s ease-in-out infinite}
+.ant{position:absolute;left:30px;top:-8px;width:4px;height:20px;background:#9aa3d9}
+.ant::after{content:"";position:absolute;left:-4px;top:-8px;width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c);animation:blink 1.4s infinite}
+.head{position:absolute;left:0;top:12px;width:64px;height:64px;transform-style:preserve-3d;animation:sway 5s ease-in-out infinite}
+.f{position:absolute;width:64px;height:64px;background:linear-gradient(145deg,#eef0ff,#9aa3d9);border:1px solid rgba(0,0,0,.18);border-radius:10px}
+.fr{transform:translateZ(32px)}.bk{transform:rotateY(180deg) translateZ(32px)}
+.l{transform:rotateY(-90deg) translateZ(32px)}.r{transform:rotateY(90deg) translateZ(32px)}
+.t{transform:rotateX(90deg) translateZ(32px)}.b{transform:rotateX(-90deg) translateZ(32px)}
+.l,.r{background:linear-gradient(145deg,#8f98d4,#575fa6)}.t,.b{background:#c6cbf0}
+.screen{position:absolute;inset:8px;border-radius:14px;background:#0b0e2e;box-shadow:inset 0 0 12px rgba(25,211,255,.35)}
+.eye{position:absolute;top:13px;width:12px;height:12px;border-radius:50%;background:#19d3ff;box-shadow:0 0 10px #19d3ff;animation:eyes 4s infinite;transition:background .2s}
+.mouth{position:absolute;left:11px;right:11px;bottom:9px;height:5px;border-radius:0 0 12px 12px;background:#19d3ff;box-shadow:0 0 8px #19d3ff}
+.talk .mouth{animation:talk .2s ease-in-out infinite alternate}
+.happy .eye{transform:scaleY(.35)}
+.sad .eye,.sad .mouth{background:#ff6b7a;box-shadow:0 0 10px #ff6b7a}
+.sad .mouth{border-radius:12px 12px 0 0;bottom:11px}
+.torso{position:absolute;left:8px;top:86px;width:48px;height:46px;border-radius:16px;background:linear-gradient(145deg,#cfd4f7,#7f89c9);box-shadow:0 8px 18px rgba(60,50,150,.35)}
+.arm{position:absolute;top:6px;width:12px;height:32px;border-radius:8px;background:linear-gradient(145deg,#aeb5ea,#6b74b8);transform-origin:top center}
+.al{left:-13px}.ar{right:-13px}
+.heart{position:absolute;left:18px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 12px var(--c);animation:blink 1s infinite}
+#robot.happy{animation:jump .45s}
+#robot.sad{animation:nope .5s 2}
+#robot.dance{animation:dance .6s ease-in-out infinite}
+#robot.dance .arm{animation:wave .3s ease-in-out infinite alternate}
+@keyframes hover{50%{transform:translateY(-6px)}}
+@keyframes sway{0%,100%{transform:rotateY(-22deg) rotateX(-6deg)}50%{transform:rotateY(22deg) rotateX(4deg)}}
+@keyframes eyes{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes talk{from{height:4px;left:18px;right:18px;border-radius:6px}to{height:17px;left:13px;right:13px;border-radius:8px 8px 15px 15px}}
+@keyframes jump{50%{transform:translateY(-16px)}}
+@keyframes nope{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes dance{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-10px)}}
+@keyframes wave{from{transform:rotate(-40deg)}to{transform:rotate(40deg)}}
+
+.w{display:inline-block;padding:0 7px;margin:0 1px;border-radius:10px;color:var(--text);transition:background .2s,color .2s}
+.w.ok{color:var(--ok);background:var(--okbg);animation:pop .3s}
+.w.err{color:var(--err);background:var(--errbg);font-weight:800;animation:shake .35s}
 .w.skip{color:var(--muted);text-decoration:line-through}
-.w.cur{outline:2px solid var(--btn)}
+.w.cur{background:rgba(138,107,255,.2);box-shadow:0 0 0 3px var(--a),0 0 18px rgba(138,107,255,.55)}
+.cf{position:fixed;top:-14px;width:9px;height:14px;border-radius:2px;z-index:9;animation:fall 2.6s linear forwards}
+@keyframes pop{50%{transform:scale(1.2)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes float{50%{transform:translateY(-5px)}}
+@keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.9);opacity:0}}
+@keyframes shine{to{background-position:-300% 0}}
+@keyframes blink{50%{opacity:.25}}
+@keyframes drift{to{transform:translate(40px,50px) scale(1.15)}}
+@keyframes fall{to{transform:translate(var(--x),105vh) rotate(720deg)}}
 </style>
 </head>
 <body>
-<h1>🎤 Ingliz tilida o’qish mashqi</h1>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<main>
+<header class="hero glass"><div class="orb">🎤</div><div><h1>Ingliz tilida o’qish mashqi</h1><p>Ovozda o’qing, xatongizni darrov bilib oling</p></div></header>
+<ol class="steps"><li><b>1</b>Matn qo’ying</li><li><b>2</b>Boshlang</li><li><b>3</b>Ovozda o’qing</li></ol>
+<section class="card glass">
 <textarea id="src" placeholder="O’z inglizcha matningizni shu yerga qo’ying (paste)..."></textarea>
 <div class="row">
-  <button id="start" class="sec">▶ Saytning mikrofoni (faqat Chrome)</button>
+  <button id="start" class="go">▶ Saytning mikrofoni (faqat Chrome)</button>
   <button id="skip" class="sec" disabled>Keyingi so’z ⏭</button>
   <button id="stop" class="sec" disabled>■ To’xtatish</button>
 </div>
+<div class="legend"><span class="ok">● to’g’ri o’qilgan</span><span class="err">● xato o’qilgan</span></div>
 <div id="status">Matnni qo’ying va “Saytning mikrofoni” tugmasini bosing. Chrome brauzeridan foydalaning.</div>
-<div id="reader"></div>
+</section>
+<div id="prog" class="glass"><div class="pt"><span>Jarayon</span><span id="count">0 / 0</span></div><div class="bar"><i id="bar"></i></div></div>
+<div class="stage">
+<div id="reader" class="glass"></div>
+<aside class="robotbox"><div id="bubble">Salom! 👋</div>
+<div class="scene"><div id="robot"><div class="ant"></div>
+<div class="head"><div class="f fr"><div class="screen"><i class="eye" style="left:9px"></i><i class="eye" style="right:9px"></i><b class="mouth"></b></div></div><div class="f bk"></div><div class="f l"></div><div class="f r"></div><div class="f t"></div><div class="f b"></div></div>
+<div class="torso"><span class="arm al"></span><span class="arm ar"></span><i class="heart"></i></div>
+</div></div></aside>
+</div>
+</main>
 
 <script>
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const $ = id => document.getElementById(id);
-const statusEl = $('status'), reader = $('reader');
+const statusEl = $('status'), reader = $('reader'), rb = $('robot');
+function robot(c, ms) { rb.classList.add(c); if (ms) setTimeout(() => rb.classList.remove(c), ms); }
+function robotOff(c) { rb.classList.remove(c); }
 const norm = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const NUMS = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split(' ');
 let tokens = [], spans = [], idx = 0, running = false, speaking = false, rec = null, counted = {}, base = 0;
 
+function confetti() {
+  const c = ['#6a4cff', '#00b8f0', '#ff4fa3', '#ffd34d', '#4ff0a0'];
+  for (let i = 0; i < 60; i++) { const e = document.createElement('i'); e.className = 'cf'; e.style.cssText = 'left:' + Math.random() * 100 + 'vw;background:' + c[i % 5] + ';animation-delay:' + Math.random() * .6 + 's;--x:' + (Math.random() * 160 - 80) + 'px'; document.body.appendChild(e); setTimeout(() => e.remove(), 3400); }
+}
 function same(heard, exp) {
   if (heard === exp) return true;
   const h = NUMS.indexOf(heard), e = NUMS.indexOf(exp);
   return (h >= 0 && String(h) === exp) || (e >= 0 && String(e) === heard);
 }
-function setStatus(t) { statusEl.textContent = t; }
+function setStatus(t) { statusEl.textContent = t; document.body.classList.toggle('live', /^Eshityapman/.test(t)); document.body.classList.toggle('bad', t.startsWith('❌')); }
 function mark() {
   spans.forEach(s => s.classList.remove('cur'));
+  $('bar').style.width = (tokens.length ? idx / tokens.length * 100 : 0) + '%'; $('count').textContent = idx + ' / ' + tokens.length;
   if (spans[idx]) { spans[idx].classList.add('cur'); spans[idx].scrollIntoView({block: 'center', behavior: 'smooth'}); }
 }
 function build() {
@@ -65,7 +162,7 @@ function build() {
   tokens = text.split(/\s+/).filter(w => norm(w));
   reader.innerHTML = '';
   spans = tokens.map(w => { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; reader.appendChild(s); reader.appendChild(document.createTextNode(' ')); return s; });
-  reader.style.display = 'block';
+  reader.style.display = 'block'; $('prog').style.display = 'block';
   idx = 0; mark();
 }
 function listen() {
@@ -77,7 +174,7 @@ function process(word) {
   if (!running || speaking || idx >= tokens.length) return;
   const w = norm(word); if (!w) return;
   if (same(w, norm(tokens[idx]))) {
-    spans[idx].className = 'w ok'; idx++; mark();
+    spans[idx].className = 'w ok'; idx++; mark(); robot('happy', 450);
     if (idx >= tokens.length) finish();
   } else {
     wrong(word);
@@ -88,13 +185,15 @@ function wrong(heard) {
   speaking = true; try { rec.stop(); } catch (e) {}
   const target = tokens[idx].replace(/[^\p{L}\p{N}’'-]/gu, '');
   setStatus('❌ Xato: siz “' + heard + '” dedingiz. To’g’ri so’z: “' + target + '”. Tinglang...');
+  robot('sad', 2200); $('bubble').textContent = target;
   speechSynthesis.cancel();
   const say = rate => { const u = new SpeechSynthesisUtterance(target); u.lang = 'en-US'; u.rate = rate; return u; };
   const u1 = say(0.9), u2 = say(0.5);
-  u2.onend = u2.onerror = () => { speaking = false; setStatus('Endi “' + target + '” so’zini o’zingiz ayting.'); setTimeout(listen, 300); };
-  speechSynthesis.speak(u1); speechSynthesis.speak(u2);
+  u2.onend = u2.onerror = () => { robotOff('talk'); speaking = false; setStatus('Endi “' + target + '” so’zini o’zingiz ayting.'); setTimeout(listen, 300); };
+  robot('talk'); speechSynthesis.speak(u1); speechSynthesis.speak(u2);
 }
 function finish() {
+  confetti(); robot('dance', 4000); $('bubble').textContent = 'Barakalla! 🎉';
   running = false; try { rec.stop(); } catch (e) {}
   const bad = spans.filter(s => s.classList.contains('skip')).length;
   setStatus('🎉 Tabriklayman! Matn tugadi.' + (bad ? ' O’tkazib yuborilgan so’zlar: ' + bad : ''));
@@ -124,7 +223,7 @@ $('start').onclick = () => {
   $('start').disabled = true; $('skip').disabled = false; $('stop').disabled = false;
   listen();
 };
-$('stop').onclick = () => { running = false; speechSynthesis.cancel(); try { rec.stop(); } catch (e) {} setStatus('To’xtatildi.'); resetBtns(); };
+$('stop').onclick = () => { running = false; speechSynthesis.cancel(); robotOff('talk'); try { rec.stop(); } catch (e) {} setStatus('To’xtatildi.'); resetBtns(); };
 $('skip').onclick = () => {
   if (!running || idx >= tokens.length) return;
   speechSynthesis.cancel(); speaking = false;

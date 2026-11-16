@@ -117,6 +117,7 @@ button:disabled{opacity:.4;animation:none;box-shadow:none}
   <button id="start" class="go">▶ Saytning mikrofoni (faqat Chrome)</button>
   <button id="skip" class="sec" disabled>Keyingi so’z ⏭</button>
   <button id="stop" class="sec" disabled>■ To’xtatish</button>
+  <button id="restart" class="sec">↺ Boshidan</button>
 </div>
 <div class="legend"><span class="ok">● to’g’ri o’qilgan</span><span class="err">● xato o’qilgan</span></div>
 <div id="status">Matnni qo’ying va “Saytning mikrofoni” tugmasini bosing. Chrome brauzeridan foydalaning.</div>
@@ -140,7 +141,7 @@ function robot(c, ms) { rb.classList.add(c); if (ms) setTimeout(() => rb.classLi
 function robotOff(c) { rb.classList.remove(c); }
 const norm = s => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const NUMS = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty'.split(' ');
-let tokens = [], spans = [], idx = 0, running = false, speaking = false, rec = null, counted = {}, base = 0;
+let tokens = [], spans = [], idx = 0, running = false, speaking = false, rec = null, counted = {}, base = 0, builtFrom = '';
 
 function confetti() {
   const c = ['#6a4cff', '#00b8f0', '#ff4fa3', '#ffd34d', '#4ff0a0'];
@@ -163,7 +164,7 @@ function build() {
   reader.innerHTML = '';
   spans = tokens.map(w => { const s = document.createElement('span'); s.className = 'w'; s.textContent = w; reader.appendChild(s); reader.appendChild(document.createTextNode(' ')); return s; });
   reader.style.display = 'block'; $('prog').style.display = 'block';
-  idx = 0; mark();
+  builtFrom = $('src').value; idx = 0; mark();
 }
 function listen() {
   if (!running || speaking) return;
@@ -197,7 +198,7 @@ function finish() {
   running = false; try { rec.stop(); } catch (e) {}
   const bad = spans.filter(s => s.classList.contains('skip')).length;
   setStatus('🎉 Tabriklayman! Matn tugadi.' + (bad ? ' O’tkazib yuborilgan so’zlar: ' + bad : ''));
-  $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true;
+  resetBtns();
 }
 function init() {
   rec = new SR(); rec.lang = 'en-US'; rec.continuous = false; rec.interimResults = true;
@@ -213,17 +214,23 @@ function init() {
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { running = false; setStatus('Mikrofonga ruxsat berilmadi. Brauzer sozlamalaridan ruxsat bering.'); resetBtns(); }
   };
 }
-function resetBtns() { $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true; }
+function resetBtns() { $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true; $('start').textContent = (idx > 0 && idx < tokens.length) ? '▶ Davom etish (' + idx + ' / ' + tokens.length + ')' : '▶ Saytning mikrofoni (faqat Chrome)'; }
 
 $('start').onclick = () => {
   if (!SR) { setStatus('Bu brauzer ovozni tanimaydi. Iltimos, Chrome’dan foydalaning.'); return; }
   if (!$('src').value.trim()) { setStatus('Avval matn kiriting.'); return; }
   if (!rec) init();
-  build(); running = true; speaking = false;
+  if (!(tokens.length && idx > 0 && idx < tokens.length && $('src').value === builtFrom)) build();
+  running = true; speaking = false;
   $('start').disabled = true; $('skip').disabled = false; $('stop').disabled = false;
-  listen();
+  setTimeout(listen, 300);
 };
-$('stop').onclick = () => { running = false; speechSynthesis.cancel(); robotOff('talk'); try { rec.stop(); } catch (e) {} setStatus('To’xtatildi.'); resetBtns(); };
+$('stop').onclick = () => { running = false; speechSynthesis.cancel(); robotOff('talk'); try { rec.stop(); } catch (e) {} resetBtns(); setStatus('To’xtatildi. “Davom etish” tugmasi shu joydan davom ettiradi.'); };
+$('restart').onclick = () => {
+  running = false; speaking = false; speechSynthesis.cancel(); robotOff('talk'); try { rec && rec.stop(); } catch (e) {}
+  if ($('src').value.trim()) build();
+  resetBtns(); setStatus('Boshidan boshlash uchun tugmani bosing.');
+};
 $('skip').onclick = () => {
   if (!running || idx >= tokens.length) return;
   speechSynthesis.cancel(); speaking = false;

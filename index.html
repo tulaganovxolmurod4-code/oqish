@@ -34,14 +34,12 @@ button:disabled{opacity:.45}
 <body>
 <h1>🎤 Ingliz tilida o’qish mashqi</h1>
 <textarea id="src" placeholder="O’z inglizcha matningizni shu yerga qo’ying (paste)..."></textarea>
-<div class="row"><button id="kb">⌨️ Boshlash (klaviatura 🎤 bilan, hamma joyda ishlaydi)</button></div>
 <div class="row">
   <button id="start" class="sec">▶ Saytning mikrofoni (faqat Chrome)</button>
   <button id="skip" class="sec" disabled>Keyingi so’z ⏭</button>
   <button id="stop" class="sec" disabled>■ To’xtatish</button>
 </div>
-<textarea id="dict" style="display:none;min-height:90px" placeholder="Shu yerga bosing va klaviaturadagi 🎤 tugmasi bilan matnni o’qing..."></textarea>
-<div id="status">Matnni qo’ying, so’ng ko’k tugmani bosing. Chiqadigan maydonda klaviaturadagi 🎤 tugmasi bilan o’qing.</div>
+<div id="status">Matnni qo’ying va “Saytning mikrofoni” tugmasini bosing. Chrome brauzeridan foydalaning.</div>
 <div id="reader"></div>
 
 <script>
@@ -119,7 +117,7 @@ function init() {
 function resetBtns() { $('start').disabled = false; $('skip').disabled = true; $('stop').disabled = true; }
 
 $('start').onclick = () => {
-  if (!SR) { setStatus('Bu brauzerda saytning mikrofoni ishlamaydi. Yuqoridagi ko’k tugma (klaviatura rejimi) dan foydalaning.'); return; }
+  if (!SR) { setStatus('Bu brauzer ovozni tanimaydi. Iltimos, Chrome’dan foydalaning.'); return; }
   if (!$('src').value.trim()) { setStatus('Avval matn kiriting.'); return; }
   if (!rec) init();
   build(); running = true; speaking = false;
@@ -133,40 +131,6 @@ $('skip').onclick = () => {
   spans[idx].className = 'w skip'; idx++; mark();
   if (idx >= tokens.length) finish(); else { try { rec.stop(); } catch (e) {} }
 };
-function speakWord(w) {
-  const t = w.replace(/[^\p{L}\p{N}’'-]/gu, ''); speechSynthesis.cancel();
-  [0.9, 0.5].forEach(r => { const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = r; speechSynthesis.speak(u); });
-  return t;
-}
-let dictErr = -1, dictMiss = 0;
-$('kb').onclick = () => {
-  if (!$('src').value.trim()) { setStatus('Avval matn kiriting.'); return; }
-  running = false; try { rec && rec.stop(); } catch (e) {}
-  build(); const d = $('dict'); d.value = ''; d.style.display = 'block'; dictErr = -1; dictMiss = 0; d.focus();
-  setStatus('Pastdagi maydonga bosing, klaviaturadagi 🎤 tugmasini bosib, matnni birinchi so’zdan o’qing.');
-};
-$('dict').addEventListener('input', () => {
-  if (!tokens.length) return;
-  const v = $('dict').value, ws = v.trim().split(/\s+/).filter(w => norm(w)), trailing = /\s$/.test(v);
-  let ok = 0, bad = -1, miss = 0;
-  for (let k = 0; k < ws.length && ok < tokens.length; k++) {
-    const h = norm(ws[k]), e = norm(tokens[ok]), last = k === ws.length - 1 && !trailing;
-    if (same(h, e)) { ok++; bad = -1; }
-    else if (last && e.startsWith(h)) break;
-    else if (k + 1 < ws.length && same(h + norm(ws[k + 1]), e)) { ok++; bad = -1; k++; }
-    else if (ok + 1 < tokens.length && h === e + norm(tokens[ok + 1])) { ok += 2; bad = -1; }
-    else { bad = ok; miss++; }
-  }
-  const prevMiss = dictMiss; dictMiss = miss;
-  spans.forEach((s, i) => { s.className = 'w' + (i < ok ? ' ok' : i === bad ? ' err' : ''); });
-  idx = ok; mark();
-  if (bad >= 0) {
-    if (miss > prevMiss) { const t = speakWord(tokens[bad]); setStatus('❌ Xato. To’g’ri so’z: “' + t + '”. Uni qayta ayting, keyin davom eting.'); }
-  } else {
-    dictErr = -1;
-    setStatus(ok >= tokens.length ? '🎉 Tabriklayman! Matn tugadi.' : 'Davom eting: “' + tokens[ok] + '”');
-  }
-});
 if (window.self !== window.top) setStatus('⚠️ Mikrofon ishlashi uchun bu sahifani Chrome brauzerida alohida oching (havolani nusxalab, yangi oynada oching).');
 </script>
 </body>
